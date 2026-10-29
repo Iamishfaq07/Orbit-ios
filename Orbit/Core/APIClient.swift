@@ -36,6 +36,10 @@ actor APIClient {
         try await send(method: "POST", path: path, query: [], body: body)
     }
 
+    func patch<T: Decodable, B: Encodable>(_ path: String, body: B) async throws -> T {
+        try await send(method: "PATCH", path: path, query: [], body: body)
+    }
+
     func postVoid(_ path: String) async throws {
         let _: Empty = try await send(method: "POST", path: path, query: [], body: Optional<Empty>.none)
     }
@@ -51,7 +55,7 @@ actor APIClient {
         if let token { req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
         if let body {
             req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            req.httpBody = try JSONEncoder().encode(body)
+            req.httpBody = try Self.encoder.encode(body)
         }
         let (data, resp) = try await urlSession.data(for: req)
         let status = (resp as? HTTPURLResponse)?.statusCode ?? 0
@@ -69,6 +73,13 @@ actor APIClient {
         }
         return status == 401 ? "Please sign in again." : "Something went wrong. Please try again."
     }
+
+    static let encoder: JSONEncoder = {
+        let e = JSONEncoder()
+        e.keyEncodingStrategy = .convertToSnakeCase
+        e.dateEncodingStrategy = .iso8601
+        return e
+    }()
 
     static let decoder: JSONDecoder = {
         let d = JSONDecoder()
