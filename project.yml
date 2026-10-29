@@ -1,0 +1,35 @@
+name: Orbit
+options:
+  bundleIdPrefix: com.orbit
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    DEVELOPMENT_TEAM: ""
+targets:
+  Orbit:
+    type: application
+    platform: iOS
+    sources: [Orbit]
+    info:
+      path: Orbit/Info.plist
+      properties:
+        CFBundleDisplayName: Orbit
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        ORBIT_API_URL: https://api.orbitanswer.com
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.orbit.ios
+  OrbitTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [OrbitTests]
+    dependencies:
+      - target: Orbit
+schemes:
+  Orbit:
+    build: { targets: { Orbit: all } }
+    test: { targets: [OrbitTests] }
