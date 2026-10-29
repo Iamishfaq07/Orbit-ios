@@ -28,7 +28,7 @@ struct AuthService {
     }
 
     /// These endpoints all answer with either a session (AuthOut) or, when 2FA is on, a challenge.
-    private func session<B: Encodable>(_ path: String, body: B) async throws -> LoginResult {
+    private func session<B: Encodable & Sendable>(_ path: String, body: B) async throws -> LoginResult {
         let raw: RawAuth = try await client.post(path, body: body)
         if let challenge = raw.challenge { return .twoFactor(challenge: challenge) }
         guard let user = raw.user else { throw APIError(status: 500, message: "Something went wrong. Please try again.") }
