@@ -1,4 +1,8 @@
 name: Orbit
+packages:
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS
+    from: 9.0.0
 options:
   bundleIdPrefix: com.orbitanswer
   deploymentTarget:
@@ -20,9 +24,23 @@ targets:
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         ORBIT_API_URL: https://api.orbitanswer.com
+        # Google sign-in stays hidden until GOOGLE_IOS_CLIENT_ID (below) is set to the iOS OAuth client id.
+        GIDClientID: $(GOOGLE_IOS_CLIENT_ID)
+        CFBundleURLTypes:
+          - CFBundleURLSchemes: [$(GOOGLE_REVERSED_CLIENT_ID)]
+    entitlements:
+      path: Orbit/Orbit.entitlements
+      properties:
+        com.apple.developer.applesignin: [Default]
+    dependencies:
+      - package: GoogleSignIn
+        product: GoogleSignIn
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.orbitanswer.ios
+        GOOGLE_IOS_CLIENT_ID: ""
+        # The iOS client id reversed (com.googleusercontent.apps.<id>); a placeholder keeps the URL scheme valid.
+        GOOGLE_REVERSED_CLIENT_ID: com.orbitanswer.ios.google-unconfigured
   OrbitTests:
     type: bundle.unit-test
     platform: iOS

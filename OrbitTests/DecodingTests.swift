@@ -52,3 +52,21 @@ final class FeedDecodingTests: XCTestCase {
         XCTAssertEqual(job.tracked?.status, .applied)
     }
 }
+
+final class NonceTests: XCTestCase {
+    func testHashMatchesSHA256Hex() {
+        // The API compares the token's nonce claim to SHA-256(raw) as lowercase hex.
+        XCTAssertEqual(Nonce.sha256Hex("abc"), "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad")
+    }
+
+    func testRandomNoncesDifferAndAreLongEnoughForTheAPI() {
+        let a = Nonce(), b = Nonce()
+        XCTAssertNotEqual(a.raw, b.raw)
+        XCTAssertGreaterThanOrEqual(a.raw.count, 16)   // the API requires 16...256
+    }
+
+    func testAuthConfigDecodes() throws {
+        let cfg = try APIClient.decoder.decode(AuthConfig.self, from: Data(#"{"captcha":null,"email_verification":"off","google":true,"apple":false}"#.utf8))
+        XCTAssertEqual(cfg, AuthConfig(google: true, apple: false))
+    }
+}

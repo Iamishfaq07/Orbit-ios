@@ -32,11 +32,11 @@ actor APIClient {
         try await send(method: "GET", path: path, query: query, body: Optional<Empty>.none)
     }
 
-    func post<T: Decodable, B: Encodable>(_ path: String, body: B) async throws -> T {
+    func post<T: Decodable, B: Encodable & Sendable>(_ path: String, body: B) async throws -> T {
         try await send(method: "POST", path: path, query: [], body: body)
     }
 
-    func patch<T: Decodable, B: Encodable>(_ path: String, body: B) async throws -> T {
+    func patch<T: Decodable, B: Encodable & Sendable>(_ path: String, body: B) async throws -> T {
         try await send(method: "PATCH", path: path, query: [], body: body)
     }
 
@@ -46,7 +46,7 @@ actor APIClient {
 
     struct Empty: Codable {}
 
-    private func send<T: Decodable, B: Encodable>(method: String, path: String, query: [URLQueryItem], body: B?) async throws -> T {
+    private func send<T: Decodable, B: Encodable & Sendable>(method: String, path: String, query: [URLQueryItem], body: B?) async throws -> T {
         var comps = URLComponents(url: baseURL.appendingPathComponent(path), resolvingAgainstBaseURL: false)!
         if !query.isEmpty { comps.queryItems = query }
         var req = URLRequest(url: comps.url!)

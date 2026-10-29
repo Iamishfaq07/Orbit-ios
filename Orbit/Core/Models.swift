@@ -121,3 +121,8 @@ extension Job {
         return u
     }
 }
+
+struct AuthConfig: Decodable, Equatable {
+    var google: Bool = false
+    var apple: Bool = false
+}
