@@ -1,5 +1,5 @@
 import Foundation
-import UserNotifications
+@preconcurrency import UserNotifications
 
 /// One reminder for a job's next stop.
 struct StopReminder: Equatable {
