@@ -85,3 +85,37 @@ final class TrackPatchTests: XCTestCase {
         XCTAssertEqual(json["clear_next"] as? Bool, true)
     }
 }
+
+final class RemindersTests: XCTestCase {
+    private func job(_ id: String, status: JobStatus, next: Date?) throws -> TrackedJob {
+        let iso = ISO8601DateFormatter()
+        let nextJSON = next.map { "\"\(iso.string(from: $0))\"" } ?? "null"
+        let json = """
+        {"id":"\(id)","listing_id":"l","company":"Acme","title":"Engineer","location":"","url":"","status":"\(status.rawValue)",
+         "notes":"","applied_at":null,"next_at":\(nextJSON),"status_at":"2026-10-01T00:00:00Z","live":true}
+        """
+        return try APIClient.decoder.decode(TrackedJob.self, from: Data(json.utf8))
+    }
+
+    func testRemindsAnHourBeforeAndSkipsPastClosedAndUndated() throws {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let jobs = [
+            try job("soon", status: .interviewing, next: now.addingTimeInterval(3 * 3600)),
+            try job("inside-lead", status: .applied, next: now.addingTimeInterval(1800)),
+            try job("past", status: .applied, next: now.addingTimeInterval(-3600)),
+            try job("closed", status: .rejected, next: now.addingTimeInterval(5 * 3600)),
+            try job("undated", status: .saved, next: nil),
+        ]
+        let plan = Reminders.plan(jobs: jobs, now: now)
+        XCTAssertEqual(plan.map(\.id), ["orbit.stop.soon"])
+        XCTAssertEqual(plan.first?.fireAt, now.addingTimeInterval(2 * 3600))
+    }
+
+    func testKeepsTheEarliestWithinTheSystemLimit() throws {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let jobs = try (0..<70).map { try job("j\($0)", status: .applied, next: now.addingTimeInterval(Double(70 - $0 + 2) * 3600)) }
+        let plan = Reminders.plan(jobs: jobs, now: now)
+        XCTAssertEqual(plan.count, Reminders.limit)
+        XCTAssertEqual(plan.first?.id, "orbit.stop.j69")   // soonest first
+    }
+}
