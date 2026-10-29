@@ -20,4 +20,4 @@ open Orbit.xcodeproj
 ```
 
 The API base URL is `ORBIT_API_URL` in `project.yml` (default `https://api.orbitanswer.com`).
-The bundle id `com.orbit.ios` and the signing team are placeholders; set your own before shipping.
+The bundle id `com.orbitanswer.ios` and the signing team are placeholders; set your own before shipping.
