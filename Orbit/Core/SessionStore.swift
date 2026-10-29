@@ -38,6 +38,7 @@ final class SessionStore {
 
     private func clear() async {
         KeychainStore.delete()
+        await Reminders.clear()
         await APIClient.shared.setToken(nil)
         user = nil
         state = .signedOut
