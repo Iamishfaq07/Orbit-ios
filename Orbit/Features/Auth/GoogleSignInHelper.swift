@@ -1,4 +1,4 @@
-import GoogleSignIn
+@preconcurrency import GoogleSignIn
 import UIKit
 
 /// Google's sign-in sheet. Needs `GOOGLE_IOS_CLIENT_ID` (project.yml) from the iOS OAuth client in Google Cloud;
