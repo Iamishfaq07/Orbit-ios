@@ -1,0 +1,33 @@
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request:
+jobs:
+  build-test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install xcodegen
+      - run: xcodegen generate
+      - name: Pick or create an iPhone simulator
+        run: |
+          # Runner images vary in which simulators they ship; use whatever exists, else fetch the platform.
+          pick() { xcrun simctl list devices available -j | python3 -c '
+          import json,sys
+          for rt,devs in json.load(sys.stdin)["devices"].items():
+              if "iOS" in rt:
+                  for d in devs:
+                      if d["name"].startswith("iPhone"):
+                          print(d["udid"]); raise SystemExit
+          '; }
+          UDID=$(pick)
+          if [ -z "$UDID" ]; then
+            xcodebuild -downloadPlatform iOS
+            RT=$(xcrun simctl list runtimes available -j | python3 -c 'import json,sys; print([r["identifier"] for r in json.load(sys.stdin)["runtimes"] if r["platform"]=="iOS"][-1])')
+            UDID=$(xcrun simctl create "Orbit CI" "iPhone 16" "$RT")
+          fi
+          echo "SIM_UDID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl list devices available
+      - run: >
+          xcodebuild test -scheme Orbit -destination "id=$SIM_UDID"
+          CODE_SIGNING_ALLOWED=NO
