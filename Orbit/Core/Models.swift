@@ -61,3 +61,63 @@ struct TrackedJob: Codable, Identifiable, Equatable {
     let statusAt: Date
     let live: Bool
 }
+
+// MARK: - Discover (`GET /v1/jobs/feed`, `GET /v1/jobs/listings/{id}`)
+
+struct JobMatch: Codable, Equatable {
+    let score: Int
+    let matched: [String]
+    let missing: [String]
+}
+
+struct TrackedRef: Codable, Equatable {
+    let id: String
+    let status: JobStatus
+}
+
+/// JobOut: one post in the feed. Only the fields the app shows are decoded.
+struct Job: Codable, Identifiable, Equatable {
+    let id: String
+    let sourceLabel: String
+    let direct: Bool
+    let company: String
+    let title: String
+    let place: String
+    let experience: String?
+    let postedAt: Date
+    let url: String
+    let applyUrl: String
+    let snippet: String
+    let salary: String?
+    let match: JobMatch?
+    var tracked: TrackedRef?
+}
+
+struct FeedPage: Decodable {
+    let items: [Job]
+    let total: Int
+    let page: Int
+    let hasMore: Bool
+    let hasProfile: Bool
+}
+
+struct PostingCheck: Decodable, Equatable, Identifiable {
+    let kind: String
+    let tone: String
+    let text: String
+    var id: String { kind + text }
+}
+
+struct JobDetail: Decodable {
+    let job: Job
+    let fullText: Bool
+    let checks: [PostingCheck]
+}
+
+extension Job {
+    /// Apply only opens http(s) links; anything else from a feed is ignored.
+    var applyLink: URL? {
+        guard let u = URL(string: applyUrl.isEmpty ? url : applyUrl), ["http", "https"].contains(u.scheme?.lowercased()) else { return nil }
+        return u
+    }
+}
