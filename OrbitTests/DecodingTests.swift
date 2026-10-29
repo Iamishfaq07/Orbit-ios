@@ -70,3 +70,18 @@ final class NonceTests: XCTestCase {
         XCTAssertEqual(cfg, AuthConfig(google: true, apple: false))
     }
 }
+
+final class TrackPatchTests: XCTestCase {
+    func testOnlySetFieldsAreSent() throws {
+        let data = try APIClient.encoder.encode(TrackPatch(status: .applied))
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(json["status"] as? String, "applied")
+        XCTAssertEqual(Set(json.keys), ["status"])   // notes, next_at, clear_next left alone
+    }
+
+    func testClearingTheNextDateUsesTheServersFlag() throws {
+        let data = try APIClient.encoder.encode(TrackPatch(clearNext: true))
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(json["clear_next"] as? Bool, true)
+    }
+}

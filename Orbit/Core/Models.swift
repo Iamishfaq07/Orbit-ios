@@ -47,7 +47,7 @@ enum JobStatus: String, Codable, CaseIterable {
 }
 
 /// `GET /v1/jobs/tracker` entry (TrackerOut).
-struct TrackedJob: Codable, Identifiable, Equatable {
+struct TrackedJob: Codable, Identifiable, Hashable {
     let id: String
     let listingId: String
     let company: String
@@ -125,4 +125,12 @@ extension Job {
 struct AuthConfig: Decodable, Equatable {
     var google: Bool = false
     var apple: Bool = false
+}
+
+/// `PATCH /v1/jobs/tracker/{id}` (TrackPatch). Unset fields are left out of the request and so left alone.
+struct TrackPatch: Encodable, Sendable {
+    var status: JobStatus?
+    var notes: String?
+    var nextAt: Date?
+    var clearNext: Bool?
 }
