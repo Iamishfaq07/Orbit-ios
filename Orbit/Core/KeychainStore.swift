@@ -4,7 +4,7 @@ import Security
 /// Holds the bearer token. The API hands native clients a long-lived token (no Origin header, so no cookie-only
 /// session); it belongs in the keychain, never UserDefaults.
 enum KeychainStore {
-    private static let service = "com.orbit.ios.session"
+    private static let service = "com.orbitanswer.ios.session"
     private static let account = "access_token"
 
     private static var query: [String: Any] {

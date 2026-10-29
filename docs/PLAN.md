@@ -14,7 +14,13 @@
 5. **Native extras:** push notifications for due stops, Sign in with Apple / Google, passkeys, widgets, Live Activities, Dynamic Type + reduced-motion settings parity.
 6. **Live Copilot:** decide scope (iOS cannot capture other apps' audio; likely a companion view only).
 
-## Open decisions
-- Bundle id / Apple team / App Store listing.
-- Sign in with Apple is required by App Review if Google sign-in is offered.
-- Billing: UPI/Razorpay packs on web vs. StoreKit rules for digital goods.
+## Decisions (29 Oct 2026)
+- **Bundle id:** `com.orbitanswer.ios`. Apple team still to be set in Xcode / CI signing.
+- **Sign-in:** email + password (done), Google and Sign in with Apple. Apple is mandatory once Google is offered.
+  Backend work needed: the API only has the browser Google redirect flow (`/v1/auth/google/*`); native needs endpoints that
+  accept a Google ID token and an Apple identity token and return the same `access_token` as `/login`.
+- **Payments:** the app sells credit packs and plans with **StoreKit (in-app purchase)**. Apple Pay is not a way around this:
+  App Review requires IAP for digital goods used in the app, and "Apple Pay" itself is for physical goods/services.
+  UPI/Razorpay stays on the web app. Credits are account-wide, so a pack bought on the web works in the app. The app
+  does not link out to web checkout or mention it. Backend work: verify App Store transactions server-side
+  (App Store Server API / notifications) and grant credits like the Razorpay webhook does.
