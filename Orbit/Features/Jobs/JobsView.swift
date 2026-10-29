@@ -12,10 +12,12 @@ struct TrackerView: View {
                 ContentUnavailableView("No jobs yet", systemImage: "briefcase", description: Text("Jobs you save show up here with their route."))
             case .loaded:
                 List {
-                    Section { ForEach(model.active) { NavigationLink(value: $0) { JobRow(job: $0) } } }
+                    Section {
+                        ForEach(model.active) { job in NavigationLink(value: job) { JobRow(job: job) } }
+                    }
                     if !model.closed.isEmpty {
                         Section("Closed (\(model.closed.count))") {
-                            ForEach(model.closed) { NavigationLink(value: $0) { JobRow(job: $0) } }
+                            ForEach(model.closed) { job in NavigationLink(value: job) { JobRow(job: job) } }
                         }
                     }
                 }
