@@ -11,7 +11,7 @@ struct DeleteAccountView: View {
 
     private var needsPassword: Bool { session.user?.hasPassword ?? true }
 
-    private struct Body: Encodable, Sendable { let password: String }
+    private struct DeletePayload: Encodable, Sendable { let password: String }
 
     var body: some View {
         NavigationStack {
@@ -47,7 +47,7 @@ struct DeleteAccountView: View {
         Task {
             defer { busy = false }
             do {
-                try await APIClient.shared.delete("/v1/auth/me", body: Body(password: confirmation))
+                try await APIClient.shared.delete("/v1/auth/me", body: DeletePayload(password: confirmation))
                 // The account is gone: clear the Keychain token and reminders and return to sign-in.
                 await session.signOut()
             } catch {
