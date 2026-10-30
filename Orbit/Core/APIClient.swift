@@ -40,6 +40,11 @@ actor APIClient {
         try await send(method: "PATCH", path: path, query: [], body: body)
     }
 
+    /// A DELETE that carries a body and answers 204.
+    func delete<B: Encodable & Sendable>(_ path: String, body: B) async throws {
+        let _: Empty = try await send(method: "DELETE", path: path, query: [], body: body)
+    }
+
     func postVoid(_ path: String) async throws {
         let _: Empty = try await send(method: "POST", path: path, query: [], body: Optional<Empty>.none)
     }
