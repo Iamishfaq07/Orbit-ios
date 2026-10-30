@@ -119,3 +119,31 @@ final class RemindersTests: XCTestCase {
         XCTAssertEqual(plan.first?.id, "orbit.stop.j69")   // soonest first
     }
 }
+
+final class ResumeDecodingTests: XCTestCase {
+    func testResumeAndSummaryDecodeAndIgnoreUnknownFields() throws {
+        let list = try APIClient.decoder.decode([ResumeSummary].self, from: Data("""
+        [{"id":"r1","title":"Backend","name":"Ada","headline":"Engineer","template":"campus","score":0,"has_job":false,
+          "updated_at":"2026-10-20T10:00:00.123456+00:00"}]
+        """.utf8))
+        XCTAssertEqual(list.first?.score, 0)
+
+        let resume = try APIClient.decoder.decode(Resume.self, from: Data("""
+        {"id":"r1","title":"Backend","cover_letter":"","created_at":"2026-10-01T00:00:00Z","updated_at":"2026-10-20T10:00:00Z",
+         "revision":3,"design":{"template":"campus"},
+         "data":{"basics":{"name":"Ada","headline":"","email":"a@b.c","phone":"","location":"Pune","links":[],"summary":"Hi"},
+          "experience":[{"id":"e1","title":"Dev","company":"Acme","location":"","start":"2024","end":"","current":true,"bullets":["Built it"]}],
+          "education":[],"skills":[{"id":"s","name":"Core","items":["Swift"]}],"projects":[],"certifications":[],"extras":[],
+          "section_order":["experience"],"hidden":["projects"],"titles":{}}}
+        """.utf8))
+        XCTAssertEqual(resume.data.experience.first?.dates, "2024 – Present")
+        XCTAssertTrue(resume.data.shows("experience"))
+        XCTAssertFalse(resume.data.shows("projects"))
+    }
+
+    func testDateRangeFormatting() {
+        XCTAssertEqual(ResumeContent.range("2020", "2022", current: false), "2020 – 2022")
+        XCTAssertEqual(ResumeContent.range("", "", current: false), "")
+        XCTAssertEqual(ResumeContent.range("2020", "", current: false), "2020")
+    }
+}
