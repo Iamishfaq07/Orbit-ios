@@ -147,3 +147,27 @@ final class ResumeDecodingTests: XCTestCase {
         XCTAssertEqual(ResumeContent.range("2020", "", current: false), "2020")
     }
 }
+
+final class OfferTests: XCTestCase {
+    func testOfferDecodesAndIgnoresUnknownFields() throws {
+        let offer = try APIClient.decoder.decode([Offer].self, from: Data("""
+        [{"id":"o1","company":"Acme","role":"Engineer","city":"Pune","currency":"INR","fixed":1800000,"variable":200000,
+          "joining_bonus":0,"equity_per_year":0,"other":0,"pf":"capped","employer_costs_in_ctc":true,
+          "deadline":"2026-11-10T00:00:00Z","status":"considering","notes":"",
+          "first_year":2000000,"yearly":2000000,
+          "take_home":{"monthly":130000,"yearly_tax":1,"employee_pf":1,"employer_costs":1,"professional_tax":1,
+                       "variable_after_tax":1,"assumptions":["Old tax regime"]},
+          "market":{"currency":"INR","count":12,"p25":1500000.0,"median":1800000.0,"p75":2200000.0,"low":1,"high":2,
+                    "scope":"Engineer in Pune","samples":[]},
+          "position":"within","plan":null,"plan_stale":false,
+          "created_at":"2026-10-01T00:00:00Z","updated_at":"2026-10-02T00:00:00Z"}]
+        """.utf8))[0]
+        XCTAssertEqual(offer.position, .within)
+        XCTAssertEqual(offer.takeHome?.monthly, 130000)
+        XCTAssertEqual(offer.market?.count, 12)
+    }
+
+    func testRupeesGroupInLakhs() {
+        XCTAssertTrue(Money.format(1_800_000, currency: "INR").contains("18,00,000"))
+    }
+}
