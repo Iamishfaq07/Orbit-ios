@@ -195,3 +195,25 @@ final class StoriesContactsTests: XCTestCase {
         XCTAssertTrue(contact.followUpIsDue)
     }
 }
+
+final class PracticeQueueTests: XCTestCase {
+    func testQueueDecodes() throws {
+        let q = try APIClient.decoder.decode(PracticeQueue.self, from: Data("""
+        {"due":[{"question":"Tell me about a failure","last_score":4,"attempts":2,
+                 "last_practised_at":"2026-10-20T10:00:00Z","due_at":"2026-10-29T10:00:00Z","session_id":"s1"}],
+         "upcoming":3,"next_due_at":"2026-11-02T10:00:00Z","learnt":5}
+        """.utf8))
+        XCTAssertEqual(q.due.first?.lastScore, 4)
+        XCTAssertFalse(q.isEmpty)
+        XCTAssertEqual(q.nextDueAt != nil, true)
+    }
+
+    func testEmptyQueueAndMissingScore() throws {
+        let q = try APIClient.decoder.decode(PracticeQueue.self, from: Data(#"{"due":[],"upcoming":0,"next_due_at":null,"learnt":0}"#.utf8))
+        XCTAssertTrue(q.isEmpty)
+        let item = try APIClient.decoder.decode(PracticeQueue.Item.self, from: Data("""
+        {"question":"Q","last_score":null,"attempts":1,"last_practised_at":"2026-10-20T10:00:00Z","due_at":"2026-10-21T10:00:00Z","session_id":"s"}
+        """.utf8))
+        XCTAssertNil(item.lastScore)
+    }
+}
