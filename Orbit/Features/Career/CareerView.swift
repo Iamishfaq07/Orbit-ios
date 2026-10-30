@@ -16,7 +16,9 @@ struct CareerView: View {
                 Section("Materials") {
                     NavigationLink("Resumes") { ResumesView() }.frame(minHeight: 44)
                     NavigationLink("Offers") { OffersView() }.frame(minHeight: 44)
-                    Text("Stories, LinkedIn and contacts are coming next.").foregroundStyle(.secondary)
+                    NavigationLink("Stories") { StoriesView() }.frame(minHeight: 44)
+                    NavigationLink("Contacts") { ContactsView() }.frame(minHeight: 44)
+                    Text("LinkedIn is coming next.").foregroundStyle(.secondary)
                 }
             }
             .navigationTitle("My Career")
