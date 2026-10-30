@@ -171,3 +171,27 @@ final class OfferTests: XCTestCase {
         XCTAssertTrue(Money.format(1_800_000, currency: "INR").contains("18,00,000"))
     }
 }
+
+final class StoriesContactsTests: XCTestCase {
+    func testStoryDecodesAndListsOnlyWrittenParts() throws {
+        let story = try APIClient.decoder.decode([Story].self, from: Data("""
+        [{"id":"s1","title":"Fixed the outage","situation":"Pager at 2am","task":"","action":"Rolled back","result":"  ",
+          "competencies":["ownership","failure"],"created_at":"2026-10-01T00:00:00Z","updated_at":"2026-10-02T00:00:00Z"}]
+        """.utf8))[0]
+        XCTAssertEqual(story.parts.map(\.label), ["Situation", "Action"])
+    }
+
+    func testContactDecodesAndBuildsSafeLinks() throws {
+        let contact = try APIClient.decoder.decode([Contact].self, from: Data("""
+        [{"id":"c1","name":"Grace","company":"Acme","title":"Manager","relation":"referrer",
+          "linkedin_url":"javascript:alert(1)","email":"g@acme.test","phone":"+91 98765-43210","notes":"",
+          "application_id":null,"application_label":"Engineer at Acme","last_contacted_at":null,
+          "follow_up_at":"2020-01-01T00:00:00Z","created_at":"2026-10-01T00:00:00Z","updated_at":"2026-10-01T00:00:00Z"}]
+        """.utf8))[0]
+        XCTAssertEqual(contact.role, "Manager at Acme")
+        XCTAssertNil(contact.linkedinLink)                       // only http(s) opens
+        XCTAssertEqual(contact.mailLink?.absoluteString, "mailto:g@acme.test")
+        XCTAssertEqual(contact.phoneLink?.absoluteString, "tel:+919876543210")
+        XCTAssertTrue(contact.followUpIsDue)
+    }
+}
