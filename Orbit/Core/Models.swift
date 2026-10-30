@@ -6,6 +6,8 @@ struct User: Codable, Equatable {
     let name: String?
     let emailVerified: Bool
     let country: String?
+    /// False for an account made with Apple or Google that never set a password; nil from an older server (treated as true).
+    let hasPassword: Bool?
 }
 
 struct AuthResponse: Decodable {

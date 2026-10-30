@@ -217,3 +217,17 @@ final class PracticeQueueTests: XCTestCase {
         XCTAssertNil(item.lastScore)
     }
 }
+
+final class AccountTests: XCTestCase {
+    func testUserWithoutAPasswordDecodes() throws {
+        let user = try APIClient.decoder.decode(User.self, from: Data("""
+        {"id":"u","email":"a@b.c","name":null,"email_verified":true,"has_password":false,"country":"IN","csrf_token":"x"}
+        """.utf8))
+        XCTAssertEqual(user.hasPassword, false)
+    }
+
+    func testOlderServerWithoutTheFieldStillDecodes() throws {
+        let user = try APIClient.decoder.decode(User.self, from: Data(#"{"id":"u","email":"a@b.c","name":null,"email_verified":true,"country":null}"#.utf8))
+        XCTAssertNil(user.hasPassword)   // treated as "has a password"
+    }
+}

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CareerView: View {
     @Environment(SessionStore.self) private var session
+    @State private var deleting = false
 
     var body: some View {
         NavigationStack {
@@ -11,6 +12,8 @@ struct CareerView: View {
                         LabeledContent("Email", value: user.email)
                     }
                     Button("Sign out", role: .destructive) { Task { await session.signOut() } }
+                        .frame(minHeight: 44)
+                    Button("Delete account", role: .destructive) { deleting = true }
                         .frame(minHeight: 44)
                 }
                 Section("Materials") {
@@ -22,6 +25,7 @@ struct CareerView: View {
                 }
             }
             .navigationTitle("My Career")
+            .sheet(isPresented: $deleting) { DeleteAccountView() }
         }
     }
 }
