@@ -9,8 +9,8 @@ Native SwiftUI app for Orbit, the job-search coach that already ships on web and
 Built and merged (compiled and unit-tested by CI; not yet run by a person on a device):
 
 - **Sign-in:** email and password with the 2FA step, plus Sign in with Apple and Google. The Apple and Google
-  buttons appear only when the server reports them on (`GET /v1/auth/config`), which needs the API change in
-  `ishai#538` deployed. Session token lives in the Keychain.
+  buttons appear only when the server reports them on (`GET /v1/auth/config`), which needs the API change
+  (merged in `ishai#595`, originally #538) deployed. Session token lives in the Keychain.
 - **Today:** the next stop and one row per active route.
 - **Jobs:** Discover feed with match scores and job detail (save, mark applied), and a Tracker where you can move a
   job's stage, set its next date and edit notes.
@@ -29,7 +29,7 @@ Things only the account owner can do:
    *Sign in with Apple* capability for `com.orbitanswer.ios`.
 2. **Google iOS client.** Create an iOS OAuth client in Google Cloud, then set `GOOGLE_IOS_CLIENT_ID` and
    `GOOGLE_REVERSED_CLIENT_ID` (`com.googleusercontent.apps.<id>`) in `project.yml`.
-3. **Server.** Merge and deploy `ishai#538`, then set `ORBIT_APPLE_BUNDLE_ID=com.orbitanswer.ios` and
+3. **Server.** The API change is merged (`ishai#595`). Deploy it, then set `ORBIT_APPLE_BUNDLE_ID=com.orbitanswer.ios` and
    `ORBIT_GOOGLE_IOS_CLIENT_ID` on the API.
 4. **Billing decision.** In-app purchase (StoreKit) is the plan; it needs a go-ahead and server-side receipt checks.
 5. **A person runs it.** Everything so far is checked by the compiler and unit tests only: layout, Dynamic Type,
