@@ -9,8 +9,8 @@ Native SwiftUI app for Orbit, the job-search coach that already ships on web and
 Built and merged (compiled and unit-tested by CI; not yet run by a person on a device):
 
 - **Sign-in:** email and password with the 2FA step, plus Sign in with Apple and Google. The Apple and Google
-  buttons appear only when the server reports them on (`GET /v1/auth/config`), which needs the API change in
-  the API change (merged in `ishai#595`, originally #538) deployed. Session token lives in the Keychain.
+  buttons appear only when the server reports them on (`GET /v1/auth/config`), which needs the API change
+  (merged in `ishai#595`, originally #538) deployed. Session token lives in the Keychain.
 - **Today:** the next stop and one row per active route.
 - **Jobs:** Discover feed with match scores and job detail (save, mark applied), and a Tracker where you can move a
   job's stage, set its next date and edit notes.
